@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Set Timer">
+<meta name="theme-color" content="#141414">
+<link rel="manifest" href="manifest.json">
+<meta name="format-detection" content="telephone=no">
+<title>Gym Set Timer</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23141414'/%3E%3Ctext x='50' y='62' font-family='Arial Black, sans-serif' font-size='46' font-weight='900' fill='%23D4FF3F' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #141414;
+    --card: #1c1c1c;
+    --lime: #D4FF3F;
+    --red: #FF4433;
+    --white: #F5F5F0;
+    --gray: #6B6B6B;
+    --line: #2b2b2b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent;}
+  html, body{ height:100%; overscroll-behavior:none; }
+  body{
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    min-height: 100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    -webkit-user-select:none;
+    user-select:none;
+    touch-action: manipulation;
+  }
+  .app{
+    width:100%;
+    max-width:400px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 24px 24px;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gray);
+    font-weight: 700;
+    text-align:center;
+    margin-bottom: 4px;
+  }
+  h1{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    text-align:center;
+    color: var(--lime);
+    margin-bottom: 20px;
+  }
+  .btn{
+    border:none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    transition: transform .08s ease, opacity .15s ease;
+  }
+  .btn:active{ transform: scale(0.95); }
+  .btn-primary{ background: var(--lime); color:#141414; }
+  .btn-danger{ background: transparent; color: var(--red); border:1px solid var(--red); }
+
+  .sets-section{ margin-bottom: 22px; }
+  .sets-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom: 12px;
+  }
+  .sets-header-label{
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color: var(--gray);
+    font-weight:700;
+  }
+  .sets-count{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--lime);
+  }
+  .plates{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    min-height: 14px;
+  }
+  .plate{
+    width: 22px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--lime);
+    flex-shrink:0;
+  }
+  .set-controls{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+  .set-btn{
+    flex:1;
+    background: var(--lime);
+    color:#141414;
+    border:none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing:1px;
+    cursor:pointer;
+    transition: transform .08s ease;
+  }
+  .set-btn:active{ transform: scale(0.97); }
+  .icon-btn{
+    width: 46px;
+    height: 50px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--white);
+    font-size: 20px;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+
+  .rest-section{
+    background: #141414;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    text-align:center;
+  }
+  .rest-label{
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color: var(--gray);
+    font-weight:700;
+    margin-bottom: 8px;
+  }
+  .rest-time{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing:1px;
+    margin-bottom: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  .rest-time.resting{ color: var(--lime); }
+  .rest-time.done{ color: var(--red); }
+  .presets{
+    display:flex;
+    gap: 8px;
+    justify-content:center;
+    margin-bottom: 10px;
+  }
+  .preset{
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--gray);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .preset.active{
+    border-color: var(--lime);
+    color: var(--lime);
+  }
+  .rest-actions{
+    display:flex;
+    gap: 8px;
+    justify-content:center;
+  }
+  .rest-actions .btn{ flex:1; }
+  .hint{
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 14px;
+    text-align:center;
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="eyebrow">Gym Companion</div>
+  <h1>SET &amp; TIMER</h1>
+
+  <div class="sets-section">
+    <div class="sets-header">
+      <div class="sets-header-label">Jumlah Set</div>
+      <div class="sets-count" id="setsCount">0</div>
+    </div>
+    <div class="plates" id="plates"></div>
+    <div class="set-controls">
+      <button class="icon-btn" id="setMinus">&minus;</button>
+      <button class="set-btn" id="setPlus">+1 SET SELESAI</button>
+      <button class="icon-btn" id="setReset" title="Reset jumlah set">&#8635;</button>
+    </div>
+  </div>
+
+  <div class="rest-section">
+    <div class="rest-label">Istirahat</div>
+    <div class="rest-time" id="restTime">01:00</div>
+    <div class="presets">
+      <button class="preset" data-sec="30">30s</button>
+      <button class="preset active" data-sec="60">60s</button>
+      <button class="preset" data-sec="90">90s</button>
+      <button class="preset" data-sec="120">120s</button>
+    </div>
+    <div class="rest-actions">
+      <button class="btn btn-primary" id="restToggle">Mulai Istirahat</button>
+      <button class="btn btn-danger" id="restReset">Selesai Istirahat</button>
+    </div>
+  </div>
+
+  <div class="hint">Klik "+1 Set Selesai" otomatis memulai timer istirahat.<br>Timer tetap jalan di background &amp; tampil di notifikasi/status bar.</div>
+</div>
+
+<script>
+  function formatTime(totalSec){
+    const m = Math.floor(totalSec / 60).toString().padStart(2,'0');
+    const s = Math.floor(totalSec % 60).toString().padStart(2,'0');
+    return m + ':' + s;
+  }
+
+  // ---------- Audio (pakai <audio>, bukan WebAudio, supaya tetap jalan di background) ----------
+  function makeWavUrl(kind){
+    const rate = 8000;
+    const seconds = kind === 'beep' ? 1.2 : 1;
+    const n = Math.floor(rate * seconds);
+    const buf = new ArrayBuffer(44 + n * 2);
+    const v = new DataView(buf);
+    const str = (o, s) => { for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); };
+    str(0,'RIFF'); v.setUint32(4, 36 + n*2, true); str(8,'WAVE'); str(12,'fmt ');
+    v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+    v.setUint32(24,rate,true); v.setUint32(28,rate*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+    str(36,'data'); v.setUint32(40, n*2, true);
+    for(let i=0;i<n;i++){
+      let s = 0;
+      if(kind === 'beep'){
+        const cyc = Math.floor(rate * 0.12);
+        const pos = i % cyc;
+        const on = Math.floor(rate * 0.08);
+        if(pos < on){
+          const fade = Math.min(1, pos / 40, (on - pos) / 40);
+          s = Math.sin(2*Math.PI*1000*i/rate) * 0.5 * fade * 32767;
+        }
+      } else {
+        s = (i % 2 === 0) ? 2 : -2; // hampir hening, tapi bukan nol murni
+      }
+      v.setInt16(44 + i*2, s, true);
+    }
+    return URL.createObjectURL(new Blob([buf], {type:'audio/wav'}));
+  }
+
+  const keepAlive = new Audio(makeWavUrl('silent'));
+  keepAlive.loop = true;
+  const alarm = new Audio(makeWavUrl('beep'));
+  alarm.loop = true;
+
+  // ---------- Wake Lock ----------
+  let wakeLock = null;
+  async function acquireWake(){
+    try{
+      if('wakeLock' in navigator && !wakeLock){
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      }
+    }catch(e){}
+  }
+  function releaseWake(){
+    try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){}
+  }
+
+  // ---------- Set counter ----------
+  let sets = 0;
+  try{ sets = parseInt(localStorage.getItem('gymSets') || '0', 10) || 0; }catch(e){}
+  const setsCountEl = document.getElementById('setsCount');
+  const platesEl = document.getElementById('plates');
+  const setPlusBtn = document.getElementById('setPlus');
+  const setMinusBtn = document.getElementById('setMinus');
+
+  function renderSets(){
+    setsCountEl.textContent = sets;
+    platesEl.innerHTML = '';
+    for(let i=0; i<sets; i++){
+      const plate = document.createElement('div');
+      plate.className = 'plate';
+      platesEl.appendChild(plate);
+    }
+    try{ localStorage.setItem('gymSets', String(sets)); }catch(e){}
+  }
+
+  setPlusBtn.addEventListener('click', () => {
+    sets++;
+    renderSets();
+    startRest();
+  });
+  setMinusBtn.addEventListener('click', () => {
+    if(sets > 0){ sets--; renderSets(); }
+  });
+  document.getElementById('setReset').addEventListener('click', () => {
+    sets = 0;
+    renderSets();
+  });
+
+  // ---------- Rest timer (berbasis waktu akhir, jadi akurat walau di background) ----------
+  let restDuration = 60;
+  let restRemaining = 60;
+  let restRunning = false;
+  let restFinished = false;
+  let restEndsAt = 0;
+  let tickId = null;
+  const restTimeEl = document.getElementById('restTime');
+  const restToggleBtn = document.getElementById('restToggle');
+  const restResetBtn = document.getElementById('restReset');
+  const presetBtns = document.querySelectorAll('.preset');
+
+  function renderRest(){
+    restTimeEl.textContent = formatTime(restRemaining);
+    restTimeEl.classList.toggle('resting', restRunning);
+    restTimeEl.classList.toggle('done', restFinished);
+  }
+
+  // ---------- Notifikasi status bar (via Service Worker) ----------
+  let swReady = null;
+  let lastNotifKey = '';
+  try{
+    if('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+      swReady = navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready);
+      swReady.catch(() => { swReady = null; });
+      navigator.serviceWorker.addEventListener('message', ev => {
+        if(ev.data && ev.data.type === 'stop') resetRest(true);
+      });
+    }
+  }catch(e){}
+
+  function askNotifPermission(){
+    try{
+      if('Notification' in window && Notification.permission === 'default'){
+        Notification.requestPermission();
+      }
+    }catch(e){}
+  }
+
+  function showNotif(title, body){
+    try{
+      if(!swReady || !('Notification' in window) || Notification.permission !== 'granted') return;
+      const key = title + '|' + body;
+      if(key === lastNotifKey) return;
+      lastNotifKey = key;
+      swReady.then(reg => reg.showNotification(title, {
+        body: body,
+        tag: 'gym-timer',
+        renotify: false,
+        silent: true,
+        requireInteraction: true,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        actions: [{ action: 'stop', title: 'Selesai Istirahat' }]
+      })).catch(() => {});
+    }catch(e){}
+  }
+
+  function clearNotif(){
+    lastNotifKey = '';
+    try{
+      if(!swReady) return;
+      swReady.then(reg => reg.getNotifications({ tag: 'gym-timer' }))
+             .then(list => list.forEach(n => n.close()))
+             .catch(() => {});
+    }catch(e){}
+  }
+
+  // ---------- Media Session = notifikasi di status bar / lock screen ----------
+  const hasMS = 'mediaSession' in navigator && typeof MediaMetadata !== 'undefined';
+
+  function updateMedia(title){
+    let nTitle;
+    if(restFinished) nTitle = '⏰ Istirahat selesai!';
+    else if(restRunning) nTitle = '⏱ ' + formatTime(restRemaining) + ' • Istirahat';
+    else nTitle = '⏸ ' + formatTime(restRemaining) + ' • Dijeda';
+    showNotif(nTitle, 'Set selesai: ' + sets + '  •  Buka untuk kembali ke timer');
+    if(!hasMS) return;
+    try{
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: title || (formatTime(restRemaining) + '  •  Istirahat'),
+        artist: 'Set selesai: ' + sets,
+        album: 'Gym Set Timer'
+      });
+      navigator.mediaSession.playbackState = restRunning ? 'playing' : 'paused';
+      if(navigator.mediaSession.setPositionState && !restFinished){
+        navigator.mediaSession.setPositionState({
+          duration: restDuration,
+          position: Math.min(restDuration, Math.max(0, restDuration - restRemaining)),
+          playbackRate: 1
+        });
+      }
+    }catch(e){}
+  }
+
+  function clearMedia(){
+    clearNotif();
+    if(!hasMS) return;
+    try{
+      navigator.mediaSession.playbackState = 'none';
+      navigator.mediaSession.metadata = null;
+    }catch(e){}
+  }
+
+  if(hasMS){
+    const set = (a, fn) => { try{ navigator.mediaSession.setActionHandler(a, fn); }catch(e){} };
+    set('play', () => { if(!restRunning && !restFinished) toggleRest(); });
+    set('pause', () => { if(restRunning) toggleRest(); });
+  }
+
+  function stopAlarm(){
+    try{ alarm.pause(); alarm.currentTime = 0; }catch(e){}
+    try{ navigator.vibrate && navigator.vibrate(0); }catch(e){}
+  }
+
+  function tick(){
+    const rem = Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000));
+    restRemaining = rem;
+    renderRest();
+    if(rem <= 0){
+      finishRest();
+    } else {
+      updateMedia();
+    }
+  }
+
+  function runTicker(){
+    clearInterval(tickId);
+    tickId = setInterval(tick, 250);
+  }
+
+  function startRest(){
+    askNotifPermission();
+    restFinished = false;
+    restRemaining = restDuration;
+    restEndsAt = Date.now() + restRemaining * 1000;
+    restRunning = true;
+    restToggleBtn.textContent = 'Jeda';
+    keepAlive.play().catch(() => {});
+    acquireWake();
+    runTicker();
+    renderRest();
+    updateMedia();
+  }
+
+  function resumeRest(){
+    askNotifPermission();
+    restEndsAt = Date.now() + restRemaining * 1000;
+    restRunning = true;
+    restToggleBtn.textContent = 'Jeda';
+    keepAlive.play().catch(() => {});
+    acquireWake();
+    runTicker();
+    renderRest();
+    updateMedia();
+  }
+
+  function pauseRest(){
+    clearInterval(tickId);
+    restRemaining = Math.max(0, Math.ceil((restEndsAt - Date.now()) / 1000));
+    restRunning = false;
+    restToggleBtn.textContent = 'Lanjut';
+    keepAlive.pause();
+    renderRest();
+    updateMedia();
+  }
+
+  function finishRest(){
+    clearInterval(tickId);
+    restRemaining = 0;
+    restRunning = false;
+    restFinished = true;
+    restToggleBtn.textContent = 'Mulai Istirahat';
+    alarm.play().catch(() => {});
+    keepAlive.pause();
+    try{ navigator.vibrate && navigator.vibrate([300,100,300,100,300,100,300,100,300,100,300,100,300,100,300]); }catch(e){}
+    releaseWake();
+    renderRest();
+    updateMedia('Istirahat selesai! Lanjut set berikutnya');
+    if(hasMS){ try{ navigator.mediaSession.playbackState = 'playing'; }catch(e){} }
+  }
+
+  function resetRest(stopSound = true){
+    clearInterval(tickId);
+    if(stopSound) stopAlarm();
+    keepAlive.pause();
+    releaseWake();
+    restRunning = false;
+    restFinished = false;
+    restRemaining = restDuration;
+    restToggleBtn.textContent = 'Mulai Istirahat';
+    renderRest();
+    clearMedia();
+  }
+
+  function toggleRest(){
+    if(restRunning){
+      pauseRest();
+    } else if(!restFinished && restRemaining > 0 && restRemaining < restDuration){
+      resumeRest();
+    } else {
+      startRest();
+    }
+  }
+
+  restToggleBtn.addEventListener('click', toggleRest);
+  restResetBtn.addEventListener('click', () => resetRest(true));
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      presetBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      restDuration = parseInt(btn.dataset.sec, 10);
+      resetRest(false);
+    });
+  });
+
+  // Saat balik ke aplikasi: sinkronkan waktu & aktifkan lagi wake lock
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && restRunning){
+      tick();
+      acquireWake();
+    }
+  });
+
+  renderSets();
+  renderRest();
+</script>
+
+</body>
+</html>
